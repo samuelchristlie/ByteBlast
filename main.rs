@@ -22,11 +22,22 @@ fn main() {
 	let size = input.trim().parse::<i32>().unwrap() as usize;
 	input.clear();
 
-	let mut bytes = vec![0u8; size];
-	gen.fill(&mut bytes[..]);
-
+	let batchSize = 4194304;
+	let mut bytes = vec![0u8; batchSize];
 	let mut file = File::create(filename.trim()).unwrap();
-	file.write_all(&bytes).unwrap();
+
+	for _ in 0..(size/batchSize){
+		gen.fill(&mut bytes[..]);
+
+		file.write_all(&bytes).unwrap();
+	}
+
+	let mut lastBytes = vec![0u8; size % batchSize];
+	gen.fill(&mut lastBytes[..]);
+
+	file.write_all(&lastBytes).unwrap();
+
+	
 
 	println!("[!] File successfully created!");
 }
